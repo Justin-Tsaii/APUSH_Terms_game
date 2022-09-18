@@ -33,7 +33,7 @@ def start_game(number_questions):
         response = input("Type the Answer: ")
         response_list = response.split(" ")
 
-        correct_char = score_response(0, response, answer_text, answer_char, correct_char, word_char_correct, response_list, answer_text_list)
+        correct_char = score_response(0, response, answer_text, answer_char, correct_char, word_char_correct, response_list, answer_text_list, len(answer_text))
         if(point_earned(correct_char, len(answer_text))):
             score += 1
 
@@ -64,14 +64,16 @@ def select_question(selector, answer_text_list, question_text_list):
     question_text = " ".join(question_text_list)
     return question_text
 
-def score_response(args, response, answer_text, answer_char, correct_char, num_correct, response_list, answer_text_list):
+def score_response(args, response, answer_text, answer_char, correct_char, num_correct, response_list, answer_text_list, total_char):
     match args:
         case 0:
             for c in response:
                 if c == answer_text[answer_char]:
                     correct_char += 1
+                    if correct_char == total_char:
+                        return correct_char
                 else:
-                    num_correct = score_response(1, None, None, None, None, num_correct, response_list, answer_text_list)
+                    num_correct = score_response(1, None, None, None, None, num_correct, response_list, answer_text_list, total_char)
                     return num_correct
                 answer_char += 1
             return correct_char
