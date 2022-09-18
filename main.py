@@ -47,7 +47,6 @@ def start_game(number_questions):
 def select_answer(answer_text_list):
     for word in answer_text_list:
         if word.startswith("(") or word.isnumeric():
-            print(word)
             answer_text_list.remove(word)
         elif word.endswith("\n"):
             word_txt = word.replace("\n", "")
