@@ -1,44 +1,30 @@
 import random
+import TermsDirectory.TermsClass as termsCls
 #Get the contents of the text file
-file = open("Terms101-150.txt", "rt")
-num_questions = 0
-questions = []
-answers = []
-for line in file:
-    if line[0] != "1":
-        text = line.replace("â€™", "'")
-        questions.append(text)
-        num_questions += 1
-    else:
-        text = line.replace("â€™", "'")
-        answers.append(text)
+textFile = "TermsDirectory/Terms151-200.txt"
+termsCls.read_file(textFile)
+
+questions = termsCls.getQuestions()
+answers = termsCls.getAnswers()
+num_questions = termsCls.getQuestionAmount()
 initial_questions = num_questions
-file.close()
 
 def start_game(number_questions):
     score = 0
-    answer_char = 0
-    correct_char = 0
-    word_char_correct = 0
     while number_questions > 0:
         selector = random.randint(0, number_questions-1)
         question_text_list = questions[selector].split(" ")
         answer_text_list = answers[selector].split(" ")
-        answer_text_list.pop(0)
 
         question_text = select_question(selector, answer_text_list, question_text_list)
-        answer_text = select_answer(answer_text_list)
 
         print("\n" + question_text)
         response = input("Type the Answer: ")
-        response_list = response.split(" ")
+        answer_tup = compare_answer(response, answers[selector])
+        if(answer_tup[1] == True):
+            if(point_earned(answer_tup[0], getTotalChar())):
+                score += 1
 
-        correct_char = score_response(0, response, answer_text, answer_char, correct_char, word_char_correct, response_list, answer_text_list, len(answer_text))
-        if(point_earned(correct_char, len(answer_text))):
-            score += 1
-
-        answer_char = 0
-        correct_char = 0
         number_questions -= 1
         questions.remove(questions[selector])
         answers.remove(answers[selector])
@@ -64,29 +50,36 @@ def select_question(selector, answer_text_list, question_text_list):
     question_text = " ".join(question_text_list)
     return question_text
 
-def score_response(args, response, answer_text, answer_char, correct_char, num_correct, response_list, answer_text_list, total_char):
-    match args:
-        case 0:
-            for c in response:
-                if c == answer_text[answer_char]:
-                    correct_char += 1
-                    if correct_char == total_char:
-                        return correct_char
-                else:
-                    num_correct = score_response(1, None, None, None, None, num_correct, response_list, answer_text_list, total_char)
-                    return num_correct
-                answer_char += 1
-            return correct_char
-        case 1:
-            word_index = 0
-            while word_index < len(response_list):
-                word = response_list[word_index]
-                if word in answer_text_list:
-                    num_correct += len(word)
-                    response_list.remove(word)
-                else:
-                    word_index += 1
-            return num_correct
+def compare_answer(response, answer):
+    answer_letters = []
+    num_letters = []
+    total = 0
+    answer_total = 0
+    answer_index = 0
+    for a in answer:
+        if a.isalnum() and a not in answer_letters:
+            answer_letters.append(a)
+    for i in answer_letters:
+        count = answer.count(i)
+        resp_count = response.count(i)
+        num_letters.append(count)
+        if resp_count >= count:
+            resp_count = count
+        total += resp_count
+        answer_total += count
+    setTotalChar(answer_total)
+    for c in response:
+        if c == answer[answer_index]:
+            return (total, True)
+        answer_index += 1
+    return (total, False)
+
+def setTotalChar(amount):
+    global question_char
+    question_char = amount
+
+def getTotalChar():
+    return question_char
 
 def point_earned(number_correct, total_char):
     accuracy = number_correct / total_char
